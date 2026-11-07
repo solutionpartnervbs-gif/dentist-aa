@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "dental-ai-assistant",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-10-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "remote": true
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "DentalAgent", "class_name": "DentalAgent" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DentalAgent"] }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dental-appointments-db",
+      "database_id": "70fb9b5b-2083-4484-9345-6d1d003b2e02"
+    }
+  ],
+  "ai": { "binding": "AI" },
+  "triggers": { "crons": ["0 0 * * *"] },
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true },
+    "traces": { "enabled": true }
+  }
+}

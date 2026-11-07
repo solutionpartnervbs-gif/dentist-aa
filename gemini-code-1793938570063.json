@@ -1,0 +1,186 @@
+{
+  "project": {
+    "name": "dental-ai-assistant",
+    "platform": "Cloudflare Developer Platform",
+    "pricing_tier": "Free ($0/month)",
+    "runtime": "Cloudflare Workers (ES2022 + nodejs_compat)",
+    "timezone": "Asia/Manila"
+  },
+  "cloudflare_infrastructure": {
+    "compute": {
+      "service": "Cloudflare Workers",
+      "entry_point": "src/server.ts",
+      "compatibility_date": "2026-10-15",
+      "compatibility_flags": ["nodejs_compat"],
+      "free_quota": "100,000 requests/day"
+    },
+    "static_assets": {
+      "service": "Workers Static Assets",
+      "binding": "ASSETS",
+      "directory": "./public",
+      "pages": [
+        {
+          "path": "/index.html",
+          "description": "Patient-facing 24/7 AI web chat widget"
+        },
+        {
+          "path": "/admin.html",
+          "description": "Password-protected dentist dashboard to view, filter, and manage bookings"
+        }
+      ]
+    },
+    "stateful_ai_agent": {
+      "service": "Cloudflare Agents SDK (@cloudflare/ai-chat) + SQLite Durable Objects",
+      "binding": "DentalAgent",
+      "class_name": "DentalAgent",
+      "migration_tag": "v1",
+      "storage_engine": "SQLite (new_sqlite_classes)",
+      "free_quota": "5 GB SQLite storage, ~3M WebSocket/HTTP requests/month",
+      "capabilities": [
+        "Per-patient conversation history persistence",
+        "Real-time WebSocket streaming",
+        "Automated multi-step tool calling"
+      ]
+    },
+    "llm_inference": {
+      "service": "Cloudflare Workers AI",
+      "binding": "AI",
+      "primary_model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "fallback_high_volume_model": "@cf/meta/llama-3.1-8b-instruct-fast",
+      "free_quota": "10,000 Neurons/day"
+    },
+    "relational_database": {
+      "service": "Cloudflare D1 (Serverless SQLite)",
+      "binding": "DB",
+      "database_name": "dental-appointments-db",
+      "free_quota": "5M rows read/day, 100K rows written/day, 5 GB storage",
+      "schema": {
+        "table": "appointments",
+        "columns": {
+          "id": "TEXT PRIMARY KEY (UUID)",
+          "patient_name": "TEXT NOT NULL",
+          "patient_phone": "TEXT NOT NULL",
+          "patient_email": "TEXT",
+          "service_type": "TEXT NOT NULL",
+          "appointment_date": "TEXT NOT NULL (YYYY-MM-DD)",
+          "appointment_time": "TEXT NOT NULL (HH:MM)",
+          "status": "TEXT NOT NULL DEFAULT 'confirmed' (confirmed | completed | cancelled | no_show)",
+          "reminder_sent": "INTEGER NOT NULL DEFAULT 0 (0 | 1)",
+          "created_at": "TEXT NOT NULL (ISO-8601)"
+        },
+        "indexes": [
+          {
+            "name": "idx_unique_slot",
+            "columns": ["appointment_date", "appointment_time"],
+            "condition": "WHERE status = 'confirmed'",
+            "purpose": "Prevents double-booking of the same date and time slot"
+          }
+        ]
+      }
+    },
+    "scheduled_jobs": {
+      "service": "Cloudflare Cron Triggers",
+      "schedules": ["0 0 * * *"],
+      "execution_time": "00:00 UTC daily (08:00 AM Asia/Manila)",
+      "handler": "scheduled(controller, env, ctx)",
+      "action": "Queries D1 for tomorrow's confirmed appointments (reminder_sent = 0), sends a morning digest to staff on Telegram, sends batch 24-hour reminder emails via Resend, and marks reminder_sent = 1"
+    }
+  },
+  "agent_tools": [
+    {
+      "name": "checkAvailableSlots",
+      "input": { "date": "YYYY-MM-DD" },
+      "action": "Queries D1 for confirmed appointments on the target date and returns open clinic hours"
+    },
+    {
+      "name": "bookAppointment",
+      "input": {
+        "patientName": "string",
+        "patientPhone": "string",
+        "patientEmail": "string (optional)",
+        "serviceType": "string",
+        "date": "YYYY-MM-DD",
+        "time": "HH:MM"
+      },
+      "action": "Inserts confirmed booking into D1 and dispatches background Telegram & Email alerts via ctx.waitUntil()"
+    },
+    {
+      "name": "cancelAppointment",
+      "input": {
+        "patientPhone": "string",
+        "date": "YYYY-MM-DD"
+      },
+      "action": "Updates matching appointment status to 'cancelled' in D1, immediately freeing the slot"
+    }
+  ],
+  "api_endpoints": [
+    {
+      "path": "/agents/dental-agent/:sessionId",
+      "methods": ["GET (WebSocket)", "POST"],
+      "auth": "Public (Per-session UUID)",
+      "description": "Stateful AIChatAgent WebSocket stream for real-time patient chat"
+    },
+    {
+      "path": "/api/chat",
+      "methods": ["POST"],
+      "auth": "Public",
+      "description": "Lightweight REST chat endpoint for the zero-build vanilla HTML widget"
+    },
+    {
+      "path": "/api/admin/appointments",
+      "methods": ["GET"],
+      "auth": "Bearer ADMIN_PASSWORD (verified via crypto.subtle.timingSafeEqual)",
+      "description": "Lists and filters clinic appointments by date, status, and patient search query"
+    },
+    {
+      "path": "/api/admin/appointments/:id",
+      "methods": ["PATCH", "DELETE"],
+      "auth": "Bearer ADMIN_PASSWORD",
+      "description": "Updates appointment status, reschedules slots, or deletes records from the admin UI"
+    },
+    {
+      "path": "/api/telegram/webhook",
+      "methods": ["POST"],
+      "auth": "Telegram Bot Callback Payload",
+      "description": "Handles inline Telegram button taps (Mark Completed / Cancel Slot) directly from staff phones"
+    }
+  ],
+  "external_integrations": {
+    "telegram_bot_api": {
+      "cost": "Free (Unlimited)",
+      "secrets": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"],
+      "features": [
+        "Instant new booking alerts with inline Complete/Cancel buttons",
+        "Daily 8:00 AM schedule digest for clinic staff"
+      ]
+    },
+    "resend_email_api": {
+      "cost": "Free Tier (3,000 emails/month, 100 emails/day)",
+      "secrets": ["RESEND_API_KEY", "CLINIC_NOTIFICATION_EMAIL"],
+      "endpoints_used": [
+        "POST https://api.resend.com/emails (Instant booking confirmation)",
+        "POST https://api.resend.com/emails/batch (Daily 24-hour reminder batch)"
+      ]
+    },
+    "mcp_servers": {
+      "config_file": "opencode.json",
+      "servers": {
+        "comfy-cloud": {
+          "type": "remote",
+          "url": "https://cloud.comfy.org/mcp"
+        },
+        "cloudflare-bindings": {
+          "type": "remote",
+          "url": "https://bindings.mcp.cloudflare.com/mcp"
+        }
+      }
+    }
+  },
+  "secrets_required": [
+    "ADMIN_PASSWORD",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID",
+    "RESEND_API_KEY",
+    "CLINIC_NOTIFICATION_EMAIL"
+  ]
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.dev.vars
+.env
+.wrangler/
+install.log
+*.log
+*.lnk
+*.pdf
+

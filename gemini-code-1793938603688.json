@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "comfy-cloud": {
+        "type": "remote",
+        "url": "https://cloud.comfy.org/mcp"
+      },
+      "cloudflare-bindings": {
+        "type": "remote",
+        "url": "https://bindings.mcp.cloudflare.com/mcp"
+      },
+      "cloudflare-docs": {
+        "type": "remote",
+        "url": "https://docs.mcp.cloudflare.com/mcp"
+      }
+    }
+  }
+}
