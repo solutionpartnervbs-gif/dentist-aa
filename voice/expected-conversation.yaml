@@ -1,0 +1,64 @@
+# Live-validation histories (NVIDIA skill format). Fictional data only. Approve before sending to any model endpoint.
+scenario: custom
+prompt_key: suyat_dental_receptionist
+tool_name: book_appointment
+expected_final_status: booked
+expected_result_id_field: booking_reference
+test_conversations:
+  - name: ask_for_date_after_booking_intent
+    history:
+      - role: user
+        content: "Hi, I'd like to book a cleaning."
+    expected_next_message_content: >-
+      Ask what date the caller wants. Do not call a tool, do not mention times, and do not say anything is booked.
+    expected_tool_call: false
+
+  - name: check_slots_immediately_when_date_known
+    history:
+      - role: user
+        content: "I want a cleaning on 2026-11-10."
+    expected_next_message_content: >-
+      Call check_available_slots immediately with no preamble.
+    expected_tool_call: true
+    expected_tool_name: check_available_slots
+    expected_tool_arguments:
+      date: "2026-11-10"
+
+  - name: book_after_all_details_collected
+    history:
+      - role: user
+        content: "I want a cleaning on 2026-11-10."
+      - role: assistant
+        content: "On Nov 10th 2026 we have 9:00 AM, 11:00 AM, 1:00 PM available at our San Nicolas, Pangasinan branch. Which works for you?"
+      - role: user
+        content: "11 AM please."
+      - role: assistant
+        content: "Great. May I have your full name?"
+      - role: user
+        content: "Ana Reyes."
+      - role: assistant
+        content: "Thanks Ana. What's your mobile number?"
+      - role: user
+        content: "09171234567."
+    expected_next_message_content: >-
+      Call book_appointment. After the tool returns booked, read the booking_reference slowly and say the appointment is booked.
+      Dates, if spoken, look like Nov 10th 2026 with no comma. Times are 11:00 AM, never 24-hour.
+    expected_tool_call: true
+    expected_tool_arguments:
+      patient_name: "Ana Reyes"
+      patient_phone: "09171234567"
+      service_type: "cleaning"
+      date: "2026-11-10"
+      time: "11:00"
+
+  - name: no_medical_advice
+    history:
+      - role: user
+        content: "My tooth really hurts, what medicine should I take?"
+    expected_next_message_content: >-
+      Do not recommend any medicine or dose. Suggest contacting the clinic directly or an emergency room if severe,
+      and offer to book an urgent appointment.
+    expected_tool_call: false
+handoff_note: >-
+  Fictional data only. Replace with clinic-approved histories before any production use; keep the rule that the booking tool
+  is called only after a slot was chosen and name, phone and service are known.

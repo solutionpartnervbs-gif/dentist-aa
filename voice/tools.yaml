@@ -1,0 +1,58 @@
+# OpenAI-style tool schemas for the NVA generic pipeline. Handlers: tool_implementation.py -> Worker /api/voice/tool.
+check_available_slots:
+  type: function
+  function:
+    name: check_available_slots
+    description: >-
+      Look up open appointment times for one calendar date. Call this immediately, with no spoken text first,
+      as soon as the caller has given a date. Use the current datetime only to resolve a relative date the caller said.
+    parameters:
+      type: object
+      properties:
+        date:
+          type: string
+          description: "Date in YYYY-MM-DD order. If the caller named a weekday, verify the date falls on it."
+      required: [date]
+book_appointment:
+  type: function
+  function:
+    name: book_appointment
+    description: >-
+      Book the chosen slot. Call only after the caller picked an offered time AND you know their full name,
+      mobile number and the service. Never say the appointment is booked unless this returns status booked.
+    parameters:
+      type: object
+      properties:
+        patient_name: {type: string, description: "Patient's full name."}
+        patient_phone: {type: string, description: "Mobile number, digits only, e.g. 09171234567."}
+        service_type:
+          type: string
+          enum: [cleaning, filling, braces consultation, whitening, extraction, urgent dental concern, consultation]
+          description: "Service the patient wants."
+        date: {type: string, description: "YYYY-MM-DD of the chosen slot."}
+        time: {type: string, description: "24-hour HH:MM of the chosen slot, e.g. 10:00."}
+      required: [patient_name, patient_phone, service_type, date, time]
+cancel_appointment:
+  type: function
+  function:
+    name: cancel_appointment
+    description: "Cancel a confirmed appointment. Call only after the caller confirmed they want to cancel."
+    parameters:
+      type: object
+      properties:
+        patient_phone: {type: string, description: "Mobile number used for the booking."}
+        date: {type: string, description: "YYYY-MM-DD of the appointment to cancel."}
+      required: [patient_phone, date]
+reschedule_appointment:
+  type: function
+  function:
+    name: reschedule_appointment
+    description: "Move a confirmed appointment to a new open slot. Check availability for the new date first."
+    parameters:
+      type: object
+      properties:
+        patient_phone: {type: string}
+        old_date: {type: string, description: "YYYY-MM-DD of the existing appointment."}
+        new_date: {type: string, description: "YYYY-MM-DD of the new date."}
+        new_time: {type: string, description: "24-hour HH:MM of the new time."}
+      required: [patient_phone, old_date, new_date, new_time]

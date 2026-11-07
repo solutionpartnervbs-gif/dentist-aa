@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suyat Dental — type specimen</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+@import url('typography.css');
+:root { --ink: #1b2a49; --paper: #f5fafc; --rule: #c8d3e0; --muted: #4d5d78; }
+body { margin: 0; padding: 1.5rem; background: var(--paper); color: var(--ink); max-width: 56rem; margin-inline: auto; }
+.row { display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; padding-block: 1.5rem; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.meta { font-size: var(--text-caption); line-height: var(--leading-caption); color: var(--muted); font-variant-numeric: tabular-nums; }
+.row > :last-child { margin: 0; }
+@media (max-width: 40rem) { .row { grid-template-columns: 1fr; gap: .25rem; } }
+</style></head><body>
+<h1>Type system</h1>
+<p class="caption">Plus Jakarta Sans (body/UI) · Space Grotesk (headings). Scale 1.2 → 1.333, 16/20px base, viewport 320–1280px.</p>
+<div class="row"><div class="meta">display · h1<br>27.6→47.4px · 700 · lh 1.1 · −0.01em</div><h1 style="margin:0">Comprehensive Dental Care</h1></div>
+<div class="row"><div class="meta">heading · h2<br>23→35.5px · 700 · lh 1.2</div><h2 style="margin:0">Everything for your smile</h2></div>
+<div class="row"><div class="meta">sub · h3<br>19.2→26.7px · 700 · lh 1.35</div><h3 style="margin:0">Cleaning &amp; checkups</h3></div>
+<div class="row"><div class="meta">body<br>16px · 400 · lh 1.5 (24px rhythm)</div><p>Routine examinations and preventive dental care at our San Nicolas and Project 6 branches. Message the receptionist with your preferred schedule and our team confirms your booking.</p></div>
+<div class="row"><div class="meta">label · 600<br>16px · 600</div><p style="font-weight:var(--weight-semibold)">Mobile number</p></div>
+<div class="row"><div class="meta">caption<br>14px · 400 · lh 1.4</div><p class="caption">11 digits, starting with 09. We use it only for this booking.</p></div>
+<div class="row"><div class="meta">label-caps<br>14px · 600 · +0.05em</div><p class="label-caps">Your appointment</p></div>
+<div class="row"><div class="meta">tabular numerals</div><p class="tabular">SUYAT-7F3A91C2 · 09:00 · 10:00 · 11:00 · 12:00 · 1,234.50</p></div>
+</body></html>

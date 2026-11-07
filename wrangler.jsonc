@@ -11,8 +11,10 @@
     }
   ],
   "assets": {
-    "directory": "./public",
-    "binding": "ASSETS"
+    "directory": "./web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "html_handling": "none"
   },
   "durable_objects": {
     "bindings": [{ "name": "DentalAgent", "class_name": "DentalAgent" }]

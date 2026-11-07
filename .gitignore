@@ -8,3 +8,12 @@ install.log
 *.lnk
 *.pdf
 
+
+web/node_modules
+web/dist
+web/public/clips
+.harnesskit/
+__pycache__/
+*.pyc
+
+src/embedded-assets.ts.bak

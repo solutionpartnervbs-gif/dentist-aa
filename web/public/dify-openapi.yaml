@@ -1,0 +1,152 @@
+openapi: 3.0.3
+info:
+  title: Suyat Dental Clinic AI Receptionist API
+  description: >-
+    OpenAPI 3.0 Tool Schema for Dify Agents and Workflows to manage clinic
+    appointment bookings, slot checks, rescheduling, proof of appointment
+    receipts, and reporting.
+  version: 1.0.0
+servers:
+  - url: https://dental-ai-assistant.workers.dev
+    description: Production Cloudflare Worker Endpoint
+  - url: http://localhost:8787
+    description: Local Development Server
+
+paths:
+  /api/chat:
+    post:
+      summary: Conversational Assistant Message
+      description: Send a conversational message to the 24/7 dental clinic assistant.
+      operationId: sendChatMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: The patient or staff message.
+                  example: "Book cleaning tomorrow 10:00, name Ana 09170000001"
+                sessionId:
+                  type: string
+                  description: Optional persistent conversation session ID.
+      responses:
+        '200':
+          description: Assistant response with optional booking summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reply:
+                    type: string
+                  booked:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      patient_name:
+                        type: string
+                      patient_phone:
+                        type: string
+                      service_type:
+                        type: string
+                      appointment_date:
+                        type: string
+                      appointment_time:
+                        type: string
+                      receipt_url:
+                        type: string
+                      reference_number:
+                        type: string
+
+  /api/appointments/{id}/receipt:
+    get:
+      summary: Get Official Proof of Appointment Receipt
+      description: Retrieve verified digital receipt and appointment details for patient verification.
+      operationId: getAppointmentReceipt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The appointment UUID.
+      responses:
+        '200':
+          description: Detailed verified appointment proof receipt.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  referenceNumber:
+                    type: string
+                  patientName:
+                    type: string
+                  patientPhone:
+                    type: string
+                  serviceType:
+                    type: string
+                  appointmentDate:
+                    type: string
+                  appointmentTime:
+                    type: string
+                  status:
+                    type: string
+                  branch:
+                    type: string
+                  branchAddress:
+                    type: string
+                  receiptUrl:
+                    type: string
+
+  /api/admin/reports:
+    get:
+      summary: Generate Clinic Summary Report
+      description: Fetch clinic metrics, service breakdown, and appointment status for staff.
+      operationId: generateClinicReport
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Target date in YYYY-MM-DD format (defaults to today).
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Aggregated clinic report.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                      totalBookings:
+                        type: integer
+                      confirmed:
+                        type: integer
+                      completed:
+                        type: integer
+                      cancelled:
+                        type: integer
+                      servicesBreakdown:
+                        type: object
+
+components:
+  securitySchemes:
+    AdminBearerAuth:
+      type: http
+      scheme: bearer
