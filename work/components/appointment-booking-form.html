@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appointment booking form — Suyat Dental component</title>
+<style>
+/* ===== Tokens: primitive -> semantic -> component ===== */
+:root {
+  /* primitive */
+  --cyan-700: #00708b;
+  --cyan-300: #48cae4;
+  --cyan-100: #d9f5fb;
+  --navy-900: #1b2a49;
+  --navy-950: #0f1727;
+  --slate-600: #4d5d78;
+  --slate-500: #6b7b95;
+  --slate-300: #a9b7cf;
+  --red-700: #b91c1c;
+  --red-300: #ff9b95;
+  --green-700: #0b6b4d;
+  --green-300: #6ee7b7;
+  --white: #ffffff;
+  --mist-50: #f5fafc;
+  --mist-100: #eaf5f9;
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.5rem; --space-6: 2rem; --space-7: 3rem;
+  --radius-sm: 0.5rem; --radius-md: 0.75rem; --radius-lg: 1.25rem; --radius-pill: 999px;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', var(--font-body);
+  --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.25rem; --text-xl: 1.625rem;
+  --weight-regular: 400; --weight-semibold: 600; --weight-bold: 700;
+  --duration-fast: 150ms; --duration-base: 220ms; --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --target: 2.75rem;            /* 44px minimum touch target */
+  --focus-width: 3px; --focus-offset: 2px;
+  --border-width: 1px; --border-width-strong: 2px;
+
+  /* semantic (light) */
+  --color-page: var(--mist-50);
+  --color-surface: var(--white);
+  --color-surface-sunken: var(--mist-100);
+  --color-text: var(--navy-900);
+  --color-text-muted: var(--slate-600);
+  --color-border: var(--slate-500);       /* >= 3:1 against surface for form controls */
+  --color-border-subtle: color-mix(in srgb, var(--navy-900) 14%, transparent);
+  --color-accent: var(--cyan-700);
+  --color-accent-soft: var(--cyan-100);
+  --color-on-accent: var(--white);
+  --color-focus: var(--cyan-700);
+  --color-error: var(--red-700);
+  --color-success: var(--green-700);
+  --shadow-card: 0 12px 32px color-mix(in srgb, var(--navy-900) 14%, transparent);
+  --color-disabled-bg: var(--mist-100);
+  --color-disabled-text: var(--slate-500);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-page: var(--navy-950);
+    --color-surface: #17233a;
+    --color-surface-sunken: #1d2c48;
+    --color-text: #eef4fb;
+    --color-text-muted: var(--slate-300);
+    --color-border: #7d8da8;
+    --color-border-subtle: color-mix(in srgb, var(--white) 14%, transparent);
+    --color-accent: var(--cyan-300);
+    --color-accent-soft: #0f3a47;
+    --color-on-accent: var(--navy-950);
+    --color-focus: var(--cyan-300);
+    --color-error: var(--red-300);
+    --color-success: var(--green-300);
+    --shadow-card: 0 12px 32px color-mix(in srgb, #000 45%, transparent);
+    --color-disabled-bg: #1d2c48;
+    --color-disabled-text: #8696b1;
+  }
+}
+[data-theme="dark"] {
+  --color-page: var(--navy-950);
+  --color-surface: #17233a;
+  --color-surface-sunken: #1d2c48;
+  --color-text: #eef4fb;
+  --color-text-muted: var(--slate-300);
+  --color-border: #7d8da8;
+  --color-border-subtle: color-mix(in srgb, var(--white) 14%, transparent);
+  --color-accent: var(--cyan-300);
+  --color-accent-soft: #0f3a47;
+  --color-on-accent: var(--navy-950);
+  --color-focus: var(--cyan-300);
+  --color-error: var(--red-300);
+  --color-success: var(--green-300);
+  --shadow-card: 0 12px 32px color-mix(in srgb, #000 45%, transparent);
+  --color-disabled-bg: #1d2c48;
+  --color-disabled-text: #8696b1;
+}
+
+/* component tokens: mobile-first = compact density */
+.booking {
+  --booking-pad: var(--space-4);
+  --booking-gap: var(--space-4);
+  --booking-radius: var(--radius-md);
+  --field-gap: var(--space-2);
+  --title-size: var(--text-lg);
+}
+
+/* ===== Base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font-body); font-size: var(--text-md); line-height: 1.5; color: var(--color-text); background: var(--color-page); -webkit-text-size-adjust: 100%; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.icon { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon--lg { width: 2.5rem; height: 2.5rem; }
+.icon--success { color: var(--color-success); }
+.muted { color: var(--color-text-muted); margin: 0; }
+
+/* ===== Card ===== */
+.booking {
+  display: grid; gap: var(--booking-gap);
+  width: 100%; max-width: 42rem; margin: 0 auto;
+  padding: var(--booking-pad);
+  background: var(--color-surface); color: var(--color-text);
+  border: var(--border-width) solid var(--color-border-subtle);
+  border-radius: var(--booking-radius);
+}
+.booking[data-emphasis="primary"] { border-top: var(--space-1) solid var(--color-accent); box-shadow: var(--shadow-card); }
+.booking[data-emphasis="secondary"] { box-shadow: none; }
+.booking__head { display: grid; gap: var(--space-1); }
+.booking__head h3, .success h3 { margin: 0; font-family: var(--font-display); font-size: var(--title-size); line-height: 1.15; }
+.booking__eyebrow { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-accent); }
+.booking[aria-busy="true"] { cursor: progress; }
+
+/* ===== Groups & fields ===== */
+.group { display: grid; gap: var(--booking-gap); margin: 0; padding: 0; border: 0; min-width: 0; }
+.group legend { padding: 0; margin-bottom: var(--space-3); font-weight: var(--weight-bold); font-size: var(--text-sm); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+.grid { display: grid; gap: var(--booking-gap); align-items: start; }
+.field { display: grid; gap: var(--field-gap); min-width: 0; align-content: start; }
+.field > label, .label { font-weight: var(--weight-semibold); font-size: var(--text-sm); }
+input[type="text"], input[type="tel"], input[type="date"], select {
+  width: 100%; min-height: var(--target);
+  padding: var(--space-2) var(--space-3);
+  font: inherit; color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-width-strong) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+}
+@media (hover: hover) { input[type="text"]:hover, input[type="tel"]:hover, input[type="date"]:hover, select:hover { border-color: var(--color-accent); } }
+input:focus-visible, select:focus-visible, .btn:focus-visible, .summary a:focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+input[aria-invalid="true"] { border-color: var(--color-error); background: color-mix(in srgb, var(--color-error) 7%, var(--color-surface)); }
+input:disabled, select:disabled { color: var(--color-disabled-text); background: var(--color-disabled-bg); cursor: not-allowed; }
+.hint { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
+.error-msg { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-error); }
+.error-msg .icon { margin-top: 0.1em; }
+
+/* ===== Radio choices (branch) & slots ===== */
+.choices { display: grid; gap: var(--space-3); }
+.choice, .slot { position: relative; display: block; cursor: pointer; }
+.choice input, .slot input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
+.choice__body { display: flex; gap: var(--space-3); align-items: center; min-height: var(--target); padding: var(--space-3); border: var(--border-width-strong) solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); transition: border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
+.choice__title { display: block; font-weight: var(--weight-semibold); }
+.choice__meta { display: block; font-size: var(--text-sm); color: var(--color-text-muted); }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr)); gap: var(--space-2); }
+.slot span { display: grid; place-items: center; min-height: var(--target); padding: var(--space-2); border: var(--border-width-strong) solid var(--color-border); border-radius: var(--radius-pill); font-weight: var(--weight-semibold); font-size: var(--text-sm); background: var(--color-surface); transition: border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
+@media (hover: hover) {
+  .choice:hover input:not(:disabled) + .choice__body, .slot:hover input:not(:disabled) + span { border-color: var(--color-accent); background: var(--color-accent-soft); }
+}
+.choice:active input:not(:disabled) + .choice__body, .slot:active input:not(:disabled) + span { transform: scale(0.98); }
+.choice input:checked + .choice__body { border-color: var(--color-accent); background: var(--color-accent-soft); box-shadow: inset 0 0 0 var(--border-width) var(--color-accent); }
+.slot input:checked + span { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-on-accent); }
+.choice input:focus-visible + .choice__body, .slot input:focus-visible + span { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+.slot input:disabled { cursor: not-allowed; }
+.slot input:disabled + span { color: var(--color-disabled-text); background: var(--color-disabled-bg); border-style: dashed; border-color: var(--color-border-subtle); text-decoration: line-through; }
+
+/* ===== Empty state ===== */
+.empty { display: flex; gap: var(--space-3); align-items: flex-start; margin: 0; padding: var(--space-4); border: var(--border-width-strong) dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-sunken); color: var(--color-text-muted); }
+.empty strong { display: block; color: var(--color-text); }
+
+/* ===== Buttons ===== */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--target); min-width: var(--target); padding: var(--space-2) var(--space-5); font: inherit; font-weight: var(--weight-bold); text-decoration: none; border: var(--border-width-strong) solid transparent; border-radius: var(--radius-pill); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
+.btn--block { width: 100%; }
+.btn--primary { background: var(--color-accent); color: var(--color-on-accent); }
+.btn--secondary { background: transparent; color: var(--color-accent); border-color: var(--color-accent); }
+@media (hover: hover) {
+  .btn--primary:hover:not(:disabled) { background: color-mix(in srgb, var(--color-accent) 86%, var(--color-text)); }
+  .btn--secondary:hover:not(:disabled) { background: var(--color-accent-soft); }
+}
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:disabled { cursor: not-allowed; background: var(--color-disabled-bg); color: var(--color-disabled-text); border-color: var(--color-border-subtle); transform: none; }
+/* Emphasis variant: in a secondary-emphasis card the submit steps down to the outlined style */
+.booking[data-emphasis="secondary"] .booking__foot .btn--primary:not(:disabled) { background: transparent; color: var(--color-accent); border-color: var(--color-accent); }
+@media (hover: hover) { .booking[data-emphasis="secondary"] .booking__foot .btn--primary:hover:not(:disabled) { background: var(--color-accent-soft); } }
+.btn[aria-disabled="true"]:disabled { cursor: progress; background: var(--color-accent); color: var(--color-on-accent); border-color: transparent; opacity: 0.85; }
+.booking[data-emphasis="secondary"] .btn[aria-disabled="true"]:disabled { background: var(--color-accent-soft); color: var(--color-accent); border-color: var(--color-accent); }
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.booking__foot { display: grid; gap: var(--space-3); }
+.booking__foot .hint { text-align: center; }
+
+/* ===== Error summary ===== */
+.summary { display: flex; gap: var(--space-3); padding: var(--space-4); border: var(--border-width-strong) solid var(--color-error); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-error) 8%, var(--color-surface)); color: var(--color-error); }
+.summary ul { margin: var(--space-2) 0 0; padding-left: var(--space-5); }
+.summary a { color: inherit; font-weight: var(--weight-semibold); display: inline-block; min-height: var(--target); line-height: var(--target); }
+.summary strong { color: var(--color-text); }
+
+/* ===== Success ===== */
+.success { display: grid; gap: var(--space-4); justify-items: start; }
+.ref { font-family: ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing: 0.05em; color: var(--color-text); }
+.summary-list { display: grid; gap: var(--space-2); width: 100%; margin: 0; padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.summary-list div { display: flex; justify-content: space-between; gap: var(--space-4); }
+.summary-list dt { color: var(--color-text-muted); }
+.summary-list dd { margin: 0; font-weight: var(--weight-semibold); text-align: right; }
+.actions { display: grid; gap: var(--space-3); width: 100%; }
+
+/* ===== Responsive (mobile-first). Breakpoint literals cannot be tokens in media queries. ===== */
+@media (min-width: 40rem) {
+  .booking:not([data-density="compact"]) { --booking-pad: var(--space-6); --booking-gap: var(--space-5); --booking-radius: var(--radius-lg); --title-size: var(--text-xl); }
+  .booking:not([data-density="compact"]) .grid { grid-template-columns: 1fr 1fr; }
+  .booking:not([data-density="compact"]) .choices { grid-template-columns: 1fr 1fr; }
+  .booking:not([data-density="compact"]) .actions { grid-template-columns: auto auto; justify-content: start; }
+  .booking:not([data-density="compact"]) .btn--block { width: auto; min-width: 14rem; justify-self: start; }
+  .booking:not([data-density="compact"]) .booking__foot .hint { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn, input, select, .choice__body, .slot span { transition: none; }
+  .btn:active:not(:disabled), .choice:active .choice__body, .slot:active span { transform: none; }
+  .spin { animation: none; }
+}
+
+/* ===== Gallery chrome (not part of the component) ===== */
+.gallery { display: grid; gap: var(--space-7); padding: var(--space-5) var(--space-4) var(--space-7); max-width: 60rem; margin: 0 auto; }
+.gallery__intro h1 { margin: 0 0 var(--space-2); font-family: var(--font-display); font-size: var(--text-xl); }
+.gallery__intro p { margin: 0; color: var(--color-text-muted); max-width: 42rem; }
+.case { display: grid; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface-sunken); }
+.case[data-theme="dark"] { background: var(--color-page); color: var(--color-text); }
+.case__title { margin: 0; font-size: var(--text-sm); font-weight: var(--weight-bold); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+.case__stage--narrow { max-width: 22.5rem; }
+
+</style>
+</head>
+<body>
+<main class="gallery">
+  <header class="gallery__intro">
+    <h1>Appointment booking form</h1>
+    <p>One component, every state. Tab through any form to see the focus ring; hover and press controls to see the other interaction states. Icons: Lucide (ISC licence), inlined.</p>
+  </header>
+  <section class="case" aria-label="Default · primary · comfortable"><h2 class="case__title">Default · primary · comfortable</h2><div class="case__stage"><form class="booking" data-density="comfortable" data-emphasis="primary" novalidate aria-labelledby="a-t">
+  <header class="booking__head"><span class="booking__eyebrow"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Online booking</span><h3 id="a-t">Book your visit</h3><p class="muted">Tell us who you are and when suits you. Our team confirms every booking.</p></header>
+  
+  <fieldset class="group"><legend>Your details</legend>
+    <div class="grid">
+      <div class="field"><label for="a-name">Full name</label><input id="a-name" name="name" type="text" autocomplete="name" value="Ana Reyes" required></div>
+      <div class="field"><label for="a-phone">Mobile number</label><input id="a-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="0917 123 4567" required aria-describedby="a-phone-hint"><p class="hint" id="a-phone-hint">11 digits, starting with 09. We use it only for this booking.</p></div>
+    </div>
+  </fieldset>
+  <fieldset class="group"><legend>Your appointment</legend>
+    <div class="field"><label for="a-service">Service</label><select id="a-service" name="service"><option selected>Cleaning &amp; checkups</option><option>Restorations</option><option>Braces &amp; consultations</option><option>Teeth whitening</option><option>Extractions</option><option>Dental concerns</option></select></div>
+    <div class="field"><span class="label" id="a-branch-l">Branch</span><div class="choices" role="radiogroup" aria-labelledby="a-branch-l">
+      <label class="choice"><input type="radio" name="a-branch" value="sn" checked><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">San Nicolas, Pangasinan</span><span class="choice__meta">Mon–Tue · 9:00 AM–6:00 PM</span></span></span></label>
+      <label class="choice"><input type="radio" name="a-branch" value="p6"><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">Project 6, Quezon City</span><span class="choice__meta">Wed–Sat · 10:00 AM–6:00 PM</span></span></span></label>
+    </div></div>
+    <div class="field"><label for="a-date">Preferred date</label><input id="a-date" name="date" type="date" value="2026-11-09"></div>
+    <div class="field"><span class="label" id="a-slots-l">Available times</span><span id="a-slots"><div class="slots" role="radiogroup" aria-labelledby="a-slots-l"><label class="slot"><input type="radio" name="a-time" value="09:00"><span>9:00 AM</span></label><label class="slot"><input type="radio" name="a-time" value="10:00" disabled><span>10:00 AM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="a-time" value="11:00" checked><span>11:00 AM</span></label><label class="slot"><input type="radio" name="a-time" value="12:00"><span>12:00 PM</span></label><label class="slot"><input type="radio" name="a-time" value="13:00"><span>1:00 PM</span></label><label class="slot"><input type="radio" name="a-time" value="14:00" disabled><span>2:00 PM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="a-time" value="15:00"><span>3:00 PM</span></label><label class="slot"><input type="radio" name="a-time" value="16:00"><span>4:00 PM</span></label><label class="slot"><input type="radio" name="a-time" value="17:00"><span>5:00 PM</span></label></div></span></div>
+  </fieldset>
+  <div class="booking__foot"><button class="btn btn--primary btn--block" type="submit">Book appointment</button><p class="hint">Need to change it later? Reschedule or cancel at least 24 hours ahead.</p></div>
+</form></div></section>
+  <section class="case" aria-label="Validation error"><h2 class="case__title">Validation error</h2><div class="case__stage"><form class="booking" data-density="comfortable" data-emphasis="primary" novalidate aria-labelledby="b-t">
+  <header class="booking__head"><span class="booking__eyebrow"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Online booking</span><h3 id="b-t">Book your visit</h3><p class="muted">Tell us who you are and when suits you. Our team confirms every booking.</p></header>
+  <div class="summary" role="alert"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><div><strong>Please fix 3 things before booking:</strong><ul><li><a href="#b-name">Your full name</a></li><li><a href="#b-phone">Your mobile number</a></li><li><a href="#b-slots">An appointment time</a></li></ul></div></div>
+  <fieldset class="group"><legend>Your details</legend>
+    <div class="grid">
+      <div class="field"><label for="b-name">Full name</label><input id="b-name" name="name" type="text" autocomplete="name" value="" required aria-invalid="true" aria-describedby="b-name-err"><p class="error-msg" id="b-name-err"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>We need your name to hold the slot. Enter your full name.</span></p></div>
+      <div class="field"><label for="b-phone">Mobile number</label><input id="b-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="0917 12" required aria-invalid="true" aria-describedby="b-phone-hint b-phone-err"><p class="hint" id="b-phone-hint">11 digits, starting with 09. We use it only for this booking.</p><p class="error-msg" id="b-phone-err"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>That number looks too short. Enter all 11 digits, starting with 09.</span></p></div>
+    </div>
+  </fieldset>
+  <fieldset class="group"><legend>Your appointment</legend>
+    <div class="field"><label for="b-service">Service</label><select id="b-service" name="service"><option selected>Cleaning &amp; checkups</option><option>Restorations</option><option>Braces &amp; consultations</option><option>Teeth whitening</option><option>Extractions</option><option>Dental concerns</option></select></div>
+    <div class="field"><span class="label" id="b-branch-l">Branch</span><div class="choices" role="radiogroup" aria-labelledby="b-branch-l">
+      <label class="choice"><input type="radio" name="b-branch" value="sn" checked><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">San Nicolas, Pangasinan</span><span class="choice__meta">Mon–Tue · 9:00 AM–6:00 PM</span></span></span></label>
+      <label class="choice"><input type="radio" name="b-branch" value="p6"><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">Project 6, Quezon City</span><span class="choice__meta">Wed–Sat · 10:00 AM–6:00 PM</span></span></span></label>
+    </div></div>
+    <div class="field"><label for="b-date">Preferred date</label><input id="b-date" name="date" type="date" value="2026-11-09"></div>
+    <div class="field"><span class="label" id="b-slots-l">Available times</span><span id="b-slots"><div class="slots" role="radiogroup" aria-labelledby="b-slots-l" aria-describedby=b-slots-err><label class="slot"><input type="radio" name="b-time" value="09:00"><span>9:00 AM</span></label><label class="slot"><input type="radio" name="b-time" value="10:00" disabled><span>10:00 AM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="b-time" value="11:00"><span>11:00 AM</span></label><label class="slot"><input type="radio" name="b-time" value="12:00"><span>12:00 PM</span></label><label class="slot"><input type="radio" name="b-time" value="13:00"><span>1:00 PM</span></label><label class="slot"><input type="radio" name="b-time" value="14:00" disabled><span>2:00 PM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="b-time" value="15:00"><span>3:00 PM</span></label><label class="slot"><input type="radio" name="b-time" value="16:00"><span>4:00 PM</span></label><label class="slot"><input type="radio" name="b-time" value="17:00"><span>5:00 PM</span></label></div><p class="error-msg" id="b-slots-err"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span>Choose a time so we can reserve it for you.</span></p></span></div>
+  </fieldset>
+  <div class="booking__foot"><button class="btn btn--primary btn--block" type="submit">Book appointment</button><p class="hint">Need to change it later? Reschedule or cancel at least 24 hours ahead.</p></div>
+</form></div></section>
+  <section class="case" aria-label="Loading"><h2 class="case__title">Loading</h2><div class="case__stage"><form class="booking" data-density="comfortable" data-emphasis="primary" aria-busy="true" novalidate aria-labelledby="c-t">
+  <header class="booking__head"><span class="booking__eyebrow"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Online booking</span><h3 id="c-t">Book your visit</h3><p class="muted">Tell us who you are and when suits you. Our team confirms every booking.</p></header>
+  
+  <fieldset class="group" disabled><legend>Your details</legend>
+    <div class="grid">
+      <div class="field"><label for="c-name">Full name</label><input id="c-name" name="name" type="text" autocomplete="name" value="Ana Reyes" required></div>
+      <div class="field"><label for="c-phone">Mobile number</label><input id="c-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="0917 123 4567" required aria-describedby="c-phone-hint"><p class="hint" id="c-phone-hint">11 digits, starting with 09. We use it only for this booking.</p></div>
+    </div>
+  </fieldset>
+  <fieldset class="group" disabled><legend>Your appointment</legend>
+    <div class="field"><label for="c-service">Service</label><select id="c-service" name="service"><option selected>Cleaning &amp; checkups</option><option>Restorations</option><option>Braces &amp; consultations</option><option>Teeth whitening</option><option>Extractions</option><option>Dental concerns</option></select></div>
+    <div class="field"><span class="label" id="c-branch-l">Branch</span><div class="choices" role="radiogroup" aria-labelledby="c-branch-l">
+      <label class="choice"><input type="radio" name="c-branch" value="sn" checked><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">San Nicolas, Pangasinan</span><span class="choice__meta">Mon–Tue · 9:00 AM–6:00 PM</span></span></span></label>
+      <label class="choice"><input type="radio" name="c-branch" value="p6"><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">Project 6, Quezon City</span><span class="choice__meta">Wed–Sat · 10:00 AM–6:00 PM</span></span></span></label>
+    </div></div>
+    <div class="field"><label for="c-date">Preferred date</label><input id="c-date" name="date" type="date" value="2026-11-09"></div>
+    <div class="field"><span class="label" id="c-slots-l">Available times</span><span id="c-slots"><div class="slots" role="radiogroup" aria-labelledby="c-slots-l"><label class="slot"><input type="radio" name="c-time" value="09:00"><span>9:00 AM</span></label><label class="slot"><input type="radio" name="c-time" value="10:00" disabled><span>10:00 AM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="c-time" value="11:00" checked><span>11:00 AM</span></label><label class="slot"><input type="radio" name="c-time" value="12:00"><span>12:00 PM</span></label><label class="slot"><input type="radio" name="c-time" value="13:00"><span>1:00 PM</span></label><label class="slot"><input type="radio" name="c-time" value="14:00" disabled><span>2:00 PM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="c-time" value="15:00"><span>3:00 PM</span></label><label class="slot"><input type="radio" name="c-time" value="16:00"><span>4:00 PM</span></label><label class="slot"><input type="radio" name="c-time" value="17:00"><span>5:00 PM</span></label></div></span></div>
+  </fieldset>
+  <div class="booking__foot"><button class="btn btn--primary btn--block" type="submit" aria-disabled="true" disabled><svg class="icon spin" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Booking your visit…</span></button><p class="hint">Need to change it later? Reschedule or cancel at least 24 hours ahead.</p></div>
+</form></div></section>
+  <section class="case" aria-label="Success"><h2 class="case__title">Success</h2><div class="case__stage"><section class="booking" data-density="comfortable" data-emphasis="primary" aria-labelledby="d-t">
+  <div class="success" role="status">
+    <svg class="icon icon--lg icon--success" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+    <h3 id="d-t">Your appointment is booked</h3>
+    <p class="muted">Reference <strong class="ref">SUYAT-7F3A91C2</strong>. Please arrive 10–15 minutes early and bring a government ID.</p>
+    <dl class="summary-list">
+      <div><dt>Patient</dt><dd>Ana Reyes</dd></div>
+      <div><dt>Service</dt><dd>Cleaning &amp; checkups</dd></div>
+      <div><dt>When</dt><dd>Monday, November 9 · 11:00 AM</dd></div>
+      <div><dt>Where</dt><dd>San Nicolas, Pangasinan</dd></div>
+    </dl>
+    <div class="actions">
+      <a class="btn btn--primary" href="#proof">View proof of appointment</a>
+      <button class="btn btn--secondary" type="button">Book another visit</button>
+    </div>
+  </div>
+</section></div></section>
+  <section class="case" aria-label="Empty (no date chosen)"><h2 class="case__title">Empty (no date chosen)</h2><div class="case__stage"><form class="booking" data-density="comfortable" data-emphasis="primary" novalidate aria-labelledby="e-t">
+  <header class="booking__head"><span class="booking__eyebrow"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Online booking</span><h3 id="e-t">Book your visit</h3><p class="muted">Tell us who you are and when suits you. Our team confirms every booking.</p></header>
+  
+  <fieldset class="group"><legend>Your details</legend>
+    <div class="grid">
+      <div class="field"><label for="e-name">Full name</label><input id="e-name" name="name" type="text" autocomplete="name" value="Ana Reyes" required></div>
+      <div class="field"><label for="e-phone">Mobile number</label><input id="e-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="0917 123 4567" required aria-describedby="e-phone-hint"><p class="hint" id="e-phone-hint">11 digits, starting with 09. We use it only for this booking.</p></div>
+    </div>
+  </fieldset>
+  <fieldset class="group"><legend>Your appointment</legend>
+    <div class="field"><label for="e-service">Service</label><select id="e-service" name="service"><option selected>Cleaning &amp; checkups</option><option>Restorations</option><option>Braces &amp; consultations</option><option>Teeth whitening</option><option>Extractions</option><option>Dental concerns</option></select></div>
+    <div class="field"><span class="label" id="e-branch-l">Branch</span><div class="choices" role="radiogroup" aria-labelledby="e-branch-l">
+      <label class="choice"><input type="radio" name="e-branch" value="sn" checked><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">San Nicolas, Pangasinan</span><span class="choice__meta">Mon–Tue · 9:00 AM–6:00 PM</span></span></span></label>
+      <label class="choice"><input type="radio" name="e-branch" value="p6"><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">Project 6, Quezon City</span><span class="choice__meta">Wed–Sat · 10:00 AM–6:00 PM</span></span></span></label>
+    </div></div>
+    <div class="field"><label for="e-date">Preferred date</label><input id="e-date" name="date" type="date" value=""></div>
+    <div class="field"><span class="label" id="e-slots-l">Available times</span><span id="e-slots"><p class="empty" id="e-slots-empty"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg><span><strong>Pick a date to see open times.</strong> Times appear once you choose a day the branch is open.</span></p></span></div>
+  </fieldset>
+  <div class="booking__foot"><button class="btn btn--primary btn--block" type="submit" disabled aria-describedby="e-submit-note">Book appointment</button><p class="hint" id="e-submit-note">Choose a date and time to continue.</p><p class="hint">Need to change it later? Reschedule or cancel at least 24 hours ahead.</p></div>
+</form></div></section>
+  <section class="case" aria-label="Compact · secondary emphasis"><h2 class="case__title">Compact · secondary emphasis</h2><div class="case__stage case__stage--narrow"><form class="booking" data-density="compact" data-emphasis="secondary" novalidate aria-labelledby="f-t">
+  <header class="booking__head"><span class="booking__eyebrow"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Online booking</span><h3 id="f-t">Book your visit</h3><p class="muted">Tell us who you are and when suits you. Our team confirms every booking.</p></header>
+  
+  <fieldset class="group"><legend>Your details</legend>
+    <div class="grid">
+      <div class="field"><label for="f-name">Full name</label><input id="f-name" name="name" type="text" autocomplete="name" value="Ana Reyes" required></div>
+      <div class="field"><label for="f-phone">Mobile number</label><input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="0917 123 4567" required aria-describedby="f-phone-hint"><p class="hint" id="f-phone-hint">11 digits, starting with 09. We use it only for this booking.</p></div>
+    </div>
+  </fieldset>
+  <fieldset class="group"><legend>Your appointment</legend>
+    <div class="field"><label for="f-service">Service</label><select id="f-service" name="service"><option selected>Cleaning &amp; checkups</option><option>Restorations</option><option>Braces &amp; consultations</option><option>Teeth whitening</option><option>Extractions</option><option>Dental concerns</option></select></div>
+    <div class="field"><span class="label" id="f-branch-l">Branch</span><div class="choices" role="radiogroup" aria-labelledby="f-branch-l">
+      <label class="choice"><input type="radio" name="f-branch" value="sn" checked><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">San Nicolas, Pangasinan</span><span class="choice__meta">Mon–Tue · 9:00 AM–6:00 PM</span></span></span></label>
+      <label class="choice"><input type="radio" name="f-branch" value="p6"><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">Project 6, Quezon City</span><span class="choice__meta">Wed–Sat · 10:00 AM–6:00 PM</span></span></span></label>
+    </div></div>
+    <div class="field"><label for="f-date">Preferred date</label><input id="f-date" name="date" type="date" value="2026-11-09"></div>
+    <div class="field"><span class="label" id="f-slots-l">Available times</span><span id="f-slots"><div class="slots" role="radiogroup" aria-labelledby="f-slots-l"><label class="slot"><input type="radio" name="f-time" value="09:00"><span>9:00 AM</span></label><label class="slot"><input type="radio" name="f-time" value="10:00" disabled><span>10:00 AM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="f-time" value="11:00" checked><span>11:00 AM</span></label><label class="slot"><input type="radio" name="f-time" value="12:00"><span>12:00 PM</span></label><label class="slot"><input type="radio" name="f-time" value="13:00"><span>1:00 PM</span></label><label class="slot"><input type="radio" name="f-time" value="14:00" disabled><span>2:00 PM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="f-time" value="15:00"><span>3:00 PM</span></label><label class="slot"><input type="radio" name="f-time" value="16:00"><span>4:00 PM</span></label><label class="slot"><input type="radio" name="f-time" value="17:00"><span>5:00 PM</span></label></div></span></div>
+  </fieldset>
+  <div class="booking__foot"><button class="btn btn--primary btn--block" type="submit">Book appointment</button><p class="hint">Need to change it later? Reschedule or cancel at least 24 hours ahead.</p></div>
+</form></div></section>
+  <section class="case" aria-label="Dark theme · primary" data-theme="dark"><h2 class="case__title">Dark theme · primary</h2><div class="case__stage"><form class="booking" data-density="comfortable" data-emphasis="primary" data-theme="dark" novalidate aria-labelledby="g-t">
+  <header class="booking__head"><span class="booking__eyebrow"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Online booking</span><h3 id="g-t">Book your visit</h3><p class="muted">Tell us who you are and when suits you. Our team confirms every booking.</p></header>
+  
+  <fieldset class="group"><legend>Your details</legend>
+    <div class="grid">
+      <div class="field"><label for="g-name">Full name</label><input id="g-name" name="name" type="text" autocomplete="name" value="Ana Reyes" required></div>
+      <div class="field"><label for="g-phone">Mobile number</label><input id="g-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="0917 123 4567" required aria-describedby="g-phone-hint"><p class="hint" id="g-phone-hint">11 digits, starting with 09. We use it only for this booking.</p></div>
+    </div>
+  </fieldset>
+  <fieldset class="group"><legend>Your appointment</legend>
+    <div class="field"><label for="g-service">Service</label><select id="g-service" name="service"><option selected>Cleaning &amp; checkups</option><option>Restorations</option><option>Braces &amp; consultations</option><option>Teeth whitening</option><option>Extractions</option><option>Dental concerns</option></select></div>
+    <div class="field"><span class="label" id="g-branch-l">Branch</span><div class="choices" role="radiogroup" aria-labelledby="g-branch-l">
+      <label class="choice"><input type="radio" name="g-branch" value="sn" checked><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">San Nicolas, Pangasinan</span><span class="choice__meta">Mon–Tue · 9:00 AM–6:00 PM</span></span></span></label>
+      <label class="choice"><input type="radio" name="g-branch" value="p6"><span class="choice__body"><svg class="icon " viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><span class="choice__title">Project 6, Quezon City</span><span class="choice__meta">Wed–Sat · 10:00 AM–6:00 PM</span></span></span></label>
+    </div></div>
+    <div class="field"><label for="g-date">Preferred date</label><input id="g-date" name="date" type="date" value="2026-11-09"></div>
+    <div class="field"><span class="label" id="g-slots-l">Available times</span><span id="g-slots"><div class="slots" role="radiogroup" aria-labelledby="g-slots-l"><label class="slot"><input type="radio" name="g-time" value="09:00"><span>9:00 AM</span></label><label class="slot"><input type="radio" name="g-time" value="10:00" disabled><span>10:00 AM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="g-time" value="11:00" checked><span>11:00 AM</span></label><label class="slot"><input type="radio" name="g-time" value="12:00"><span>12:00 PM</span></label><label class="slot"><input type="radio" name="g-time" value="13:00"><span>1:00 PM</span></label><label class="slot"><input type="radio" name="g-time" value="14:00" disabled><span>2:00 PM<span class="sr-only"> (already booked)</span></span></label><label class="slot"><input type="radio" name="g-time" value="15:00"><span>3:00 PM</span></label><label class="slot"><input type="radio" name="g-time" value="16:00"><span>4:00 PM</span></label><label class="slot"><input type="radio" name="g-time" value="17:00"><span>5:00 PM</span></label></div></span></div>
+  </fieldset>
+  <div class="booking__foot"><button class="btn btn--primary btn--block" type="submit">Book appointment</button><p class="hint">Need to change it later? Reschedule or cancel at least 24 hours ahead.</p></div>
+</form></div></section>
+</main>
+</body>
+</html>

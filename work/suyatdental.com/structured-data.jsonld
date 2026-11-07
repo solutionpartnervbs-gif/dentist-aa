@@ -1,0 +1,56 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Dentist",
+      "@id": "https://suyatdental.com/#organization",
+      "name": "Suyat Dental Clinic",
+      "url": "https://suyatdental.com/",
+      "description": "Dental clinic offering cleaning and checkups, restorations, braces consultations, teeth whitening and extractions at two branches, with after-hours appointments by prior arrangement and an online AI receptionist for booking.",
+      "image": "https://suyatdental.com/images/posters/hero.webp",
+      "department": [
+        {
+          "@type": "Dentist",
+          "@id": "https://suyatdental.com/#san-nicolas",
+          "name": "Suyat Dental Clinic — San Nicolas, Pangasinan",
+          "parentOrganization": { "@id": "https://suyatdental.com/#organization" },
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Sta. Maria West",
+            "addressLocality": "San Nicolas",
+            "addressRegion": "Pangasinan",
+            "addressCountry": "PH"
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday"],
+              "opens": "09:00",
+              "closes": "18:00"
+            }
+          ]
+        },
+        {
+          "@type": "Dentist",
+          "@id": "https://suyatdental.com/#project-6",
+          "name": "Suyat Dental Clinic — Project 6, Quezon City",
+          "parentOrganization": { "@id": "https://suyatdental.com/#organization" },
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "111 – B2 Rd 3 Cor. Road 7, Project 6",
+            "addressLocality": "Quezon City",
+            "addressCountry": "PH"
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Wednesday", "Thursday", "Friday", "Saturday"],
+              "opens": "10:00",
+              "closes": "18:00"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

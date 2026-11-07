@@ -1,0 +1,11 @@
+# Suyat Dental Clinic — crawler directives (paste-ready)
+# Decision recorded: staff and transactional paths are not public content.
+User-agent: *
+Disallow: /admin
+Disallow: /api/
+Disallow: /receipt/
+Disallow: /receipt.html
+
+# Per-crawler decisions for AI crawlers (e.g. GPTBot, ClaudeBot, PerplexityBot, Google-Extended)
+# have NOT been made by the site owner, so none are written here. Add a User-agent block for each
+# crawler you decide to allow or block.

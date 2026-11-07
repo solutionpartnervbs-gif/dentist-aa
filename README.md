@@ -6,7 +6,7 @@ An intelligent, full-stack clinic receptionist and patient appointment managemen
 
 ## 🌟 Features
 
-1. **24/7 AI Virtual Receptionist (`/index.html`)**
+1. **Online booking site (`/`, React frontend in `web/`) with a booking form and a virtual assistant**
    - Natural conversational appointment bookings, slot availability inquiries, cancellations, and rescheduling.
    - Dual-branch intelligence:
      - **San Nicolas, Pangasinan**: Monday – Tuesday (9:00 AM – 6:00 PM)
@@ -39,7 +39,7 @@ An intelligent, full-stack clinic receptionist and patient appointment managemen
 ## 🛠️ Architecture & Tech Stack
 
 - **Runtime:** Cloudflare Workers (ES2022 + `nodejs_compat`)
-- **Static Assets:** Hosted via Workers Static Assets (`./public`)
+- **Frontend:** `web/` — Vite + React + TypeScript, animated with Remotion (`@remotion/player` on the site; same compositions render to MP4). Built to `web/dist` and served via Workers Static Assets
 - **Database:** Cloudflare D1 SQLite (`dental-appointments-db`)
 - **Agent Framework:** Cloudflare Agents SDK (`agents` & `@cloudflare/ai-chat`)
 - **AI Models:** `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (fallback: `@cf/meta/llama-3.1-8b-instruct-fast`)
@@ -91,3 +91,29 @@ npx wrangler deploy
 
 ### GitHub Actions CI/CD
 Pushing to `main` will automatically trigger `.github/workflows/deploy.yml` to run tests and deploy to Cloudflare when `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are configured in your repository secrets.
+
+---
+
+> **Using this as a client sample?** See [`docs/NEW-CLIENT.md`](docs/NEW-CLIENT.md) for the personalisation checklist.
+
+## 🚀 Deploying
+```bash
+npm run deploy           # standard: build web/dist and `wrangler deploy` (Cloudflare serves the static files)
+npm run deploy:bundled   # same app, with the site packaged inside the Worker (wrangler.bundled.jsonc)
+```
+Use `deploy:bundled` where the Static Assets upload is blocked (e.g. a restricted network proxy). It restores `src/embedded-assets.ts` afterwards; never commit the generated version. Rollback: `npx wrangler rollback` or the Cloudflare dashboard (Workers → Deployments).
+
+## 🎬 Frontend (`web/`)
+
+```bash
+npm run dev:web        # Vite dev server (proxies /api to wrangler dev on :8787)
+npm run dev            # wrangler dev --local (serves web/dist; run build:web first)
+npm run build:web      # typecheck + production build -> web/dist
+npm run test:web       # frontend unit tests
+npm run render:clips   # re-render poster stills (public/images/posters/*.webp)
+npm run render:clips -- --video   # also MP4 promo clips -> web/public/clips (gitignored)
+npm --prefix web run studio       # Remotion Studio to edit compositions
+```
+
+Compositions live in `web/src/remotion/` (HeroReel, ServicesShowcase, BookingSteps, ReceptionistWave). Clinic copy, services, branches and hours are in `web/src/config/clinic.ts`.
+Base44 now needs `BASE44_API_KEY`, `BASE44_AGENT_ID` and `BASE44_CONVERSATION_ID` in the environment (no defaults); without them the Base44 tab falls back to the local assistant.

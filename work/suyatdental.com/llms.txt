@@ -1,0 +1,9 @@
+# Suyat Dental Clinic
+
+> Suyat Dental Clinic is a dental clinic with two branches, San Nicolas in Pangasinan and Project 6 in Quezon City, Philippines. It offers cleaning and checkups, restorations, braces consultations, teeth whitening and extractions, with after-hours appointments by prior arrangement. Patients book through an online AI receptionist.
+
+Suyat Dental Clinic is for patients in and around San Nicolas, Pangasinan and Project 6, Quezon City. Appointments are confirmed by the clinic team.
+
+## Pages
+
+- [Home](https://suyatdental.com/): the clinic overview, the six service areas, how to book in three steps, branch addresses and opening days and hours, and the AI receptionist for booking.
